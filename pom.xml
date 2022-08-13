@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.6.4</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+
+    <groupId>com.sanotes-microservices-k8</groupId>
+    <artifactId>sanotes-microservices-k8</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>sanotes-microservices-k8</name>
+    <description>Spring Cloud Note App</description>
+    <packaging>pom</packaging>
+
+    <properties>
+        <java.version>11</java.version>
+        <assertj.version>3.22.0</assertj.version>
+        <spring-boot.version>2.6.4</spring-boot.version>
+        <spring-cloud.version>2021.0.1</spring-cloud.version>
+        <chaos-monkey-spring-boot.version>2.5.4</chaos-monkey-spring-boot.version>
+        <keycloak.version>17.0.0</keycloak.version>
+        <model-mapper.version>3.1.0</model-mapper.version>
+        <jboss-resteasy.version>3.15.3.Final</jboss-resteasy.version>
+        <nimbusds-oauth2-oidc-sdk.version>9.31</nimbusds-oauth2-oidc-sdk.version>
+        <spring-security-jwt.version>1.1.1.RELEASE</spring-security-jwt.version>
+        <jjwt.version>0.9.1</jjwt.version>
+        <spring-boot.version>2.6.4</spring-boot.version>
+        <embedded-keycloak-starter.version>7.0.2</embedded-keycloak-starter.version>
+        <springdoc-openapi.version>1.6.8</springdoc-openapi.version>
+    </properties>
+
+    <modules>
+        <module>sanotes-oauth2-server</module>
+        <module>sanotes-api-gateway</module>
+        <module>sanotes-note-service</module>
+        <module>sanotes-notebook-service</module>
+        <module>sanotes-tag-service</module>
+        <module>sanotes-user-service</module>
+    </modules>
+    <dependencyManagement>
+        <dependencies>
+            <!-- https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-dependencies -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/de.codecentric/chaos-monkey-spring-boot -->
+            <dependency>
+                <groupId>de.codecentric</groupId>
+                <artifactId>chaos-monkey-spring-boot</artifactId>
+                <version>${chaos-monkey-spring-boot.version}</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/org.assertj/assertj-core -->
+            <dependency>
+                <groupId>org.assertj</groupId>
+                <artifactId>assertj-core</artifactId>
+                <version>${assertj.version}</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring-boot.version}</version>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

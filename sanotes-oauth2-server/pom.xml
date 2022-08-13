@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<properties>
+		<maven.compiler.target>${java.version}</maven.compiler.target>
+		<spring-boot.build-image.imageName>demirorens/${parent.artifactId}-${project.artifactId}
+		</spring-boot.build-image.imageName>
+	</properties>
+	<parent>
+		<groupId>com.sanotes-microservices-k8</groupId>
+		<artifactId>sanotes-microservices-k8</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+
+	<groupId>com.sanotes-microservices.oauth2-server</groupId>
+	<artifactId>sanotes-oauth2-server</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>sanotes-oauth2-server</name>
+	<description>Keycloak oauth2 server</description>
+
+
+	<dependencies>
+		<dependency>
+			<groupId>com.github.thomasdarimont.embedded-spring-boot-keycloak-server</groupId>
+			<artifactId>embedded-keycloak-server-spring-boot-starter</artifactId>
+			<version>${embedded-keycloak-starter.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+		</dependency>
+	</dependencies>
+
+	<repositories>
+		<repository>
+			<id>jitpack.io</id>
+			<url>https://jitpack.io</url>
+		</repository>
+	</repositories>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<version>${spring-boot.version}</version>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

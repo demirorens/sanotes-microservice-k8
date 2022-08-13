@@ -1,0 +1,185 @@
+zuul:
+  prefix: /api
+  ignoredServices: '*'
+  routes:
+    note-service: /note/**
+    notebook-service: /notebook/**
+    tag-service: /tag/**
+    user-service: /user/**
+    api-gateway: /gateway/**
+
+server:
+  port: 8080
+  shutdown: graceful
+  compression:
+    enabled: true
+    mime-types: application/json,text/css,application/javascript
+    min-response-size: 2048
+
+# Enable all Actuators and not only the two available by default /health and /info starting Spring Boot 2.0
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  security:
+    enabled: false
+
+# Logging
+logging:
+  level:
+    org:
+      springframework: INFO
+
+spring:
+  application:
+    name: api-gateway
+  sleuth:
+    sampler:
+      probability: 1.0
+  security:
+    oauth2:
+      resourceserver:
+        opaquetoken:
+          introspection-uri: http://localhost:8090/auth/realms/sanotes/protocol/openid-connect/token/introspect
+          client-id: sanotes-client
+          client-secret: 0e082231-a70d-48e8-b8a5-fbfb743041b6
+  cloud:
+    gateway:
+      routes:
+        - id: note-service
+          uri: http://localhost:8282 #lb://note-service
+          predicates:
+            - Path=/note/**
+          filters:
+            - StripPrefix=1
+            - name: CircuitBreaker
+              args:
+                name: notesServiceCB
+                fallbackUri: forward:/gateway/note-fallback
+        - id: notebook-service
+          uri: http://localhost:8383 #lb://notebook-service
+          predicates:
+            - Path=/notebook/**
+          filters:
+            - StripPrefix=1
+            - name: CircuitBreaker
+              args:
+                name: noteBookServiceCB
+                fallbackUri: forward:/gateway/notebook-fallback
+        - id: tag-service
+          uri: http://localhost:8484 #lb://tag-service
+          predicates:
+            - Path=/tag/**
+          filters:
+            - StripPrefix=1
+            - name: CircuitBreaker
+              args:
+                name: tagServiceCB
+                fallbackUri: forward:/gateway/tag-fallback
+        - id: user-service
+          uri: http://localhost:8585 #lb://user-service
+          predicates:
+            - Path=/user/**
+          filters:
+            - StripPrefix=1
+            - name: CircuitBreaker
+              args:
+                name: userServiceCB
+                fallbackUri: forward:/gateway/user-fallback
+        - id: openapi
+          uri: http://localhost:${server.port}
+          predicates:
+            - Path=/v3/api-docs/**
+          filters:
+            - RewritePath=/v3/api-docs/(?<path>.*), /$\{path}/v3/api-docs
+
+springdoc:
+  packagesToScan: sanotesapigateway
+  swagger-ui:
+    urls:
+      - name: user
+        url: /v3/api-docs/user
+      - name: notebook
+        url: /v3/api-docs/notebook
+      - name: note
+        url: /v3/api-docs/note
+      - name: tag
+        url: /v3/api-docs/tag
+      - name: gateway
+        url: /v3/api-docs/
+
+clients:
+  notebook-service: "http://localhost:8383/"
+  note-service: "http://localhost:8282/"
+  tag-service: "http://localhost:8484/"
+  user-service: "http://localhost:8585/"
+---
+spring:
+  config:
+    activate:
+      on-profile: docker
+  security:
+    oauth2:
+      resourceserver:
+        opaquetoken:
+          introspection-uri: http://oauth2-server:8090/auth/realms/sanotes/protocol/openid-connect/token/introspect
+          client-id: sanotes-client
+          client-secret: fMMzzHDey3z9mVo6ZCxZVvleyeqdQwqS
+  zipkin:
+    baseUrl: http://tracing-server:9411
+  cloud:
+    gateway:
+      routes:
+        - id: note-service
+          uri: http://note-service:8282
+          predicates:
+            - Path=/note/**
+          filters:
+            - StripPrefix=1
+            - name: CircuitBreaker
+              args:
+                name: notesServiceCB
+                fallbackUri: forward:/gateway/note-fallback
+        - id: notebook-service
+          uri: http://notebook-service:8383
+          predicates:
+            - Path=/notebook/**
+          filters:
+            - StripPrefix=1
+            - name: CircuitBreaker
+              args:
+                name: noteBookServiceCB
+                fallbackUri: forward:/gateway/notebook-fallback
+        - id: tag-service
+          uri: http://tag-service:8484
+          predicates:
+            - Path=/tag/**
+          filters:
+            - StripPrefix=1
+            - name: CircuitBreaker
+              args:
+                name: tagServiceCB
+                fallbackUri: forward:/gateway/tag-fallback
+        - id: user-service
+          uri: http://user-service:8585
+          predicates:
+            - Path=/user/**
+          filters:
+            - StripPrefix=1
+            - name: CircuitBreaker
+              args:
+                name: userServiceCB
+                fallbackUri: forward:/gateway/user-fallback
+        - id: openapi
+          uri: http://localhost:${server.port}
+          predicates:
+            - Path=/v3/api-docs/**
+          filters:
+            - RewritePath=/v3/api-docs/(?<path>.*), /$\{path}/v3/api-docs
+
+clients:
+  notebook-service: "http://notebook-service:8383/"
+  note-service: "http://note-service:8282/"
+  tag-service: "http://tag-service:8484/"
+  user-service: "http://user-service:8585/"

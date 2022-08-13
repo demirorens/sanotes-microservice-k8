@@ -1,0 +1,148 @@
+version: '3'
+
+services:
+  db:
+    image: postgres:alpine
+    container_name: sanotes-microservice-db
+    restart: always
+    environment:
+      - POSTGRES_MULTIPLE_DATABASES=sanotes_tagdb,sanotes_oauthdb,sanotes_notebookdb,sanotes_notedb
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    ports:
+      - '5432:5432'
+    networks:
+      - backend
+    volumes:
+      - C:\docker\volumes\sanotes-microservice-db:/var/lib/postgresql/data
+      - ./config-db:/docker-entrypoint-initdb.d
+
+  mongo:
+    image: mongo:latest
+    container_name: sanotes-mongo-db
+    restart: always
+    environment:
+      MONGO_INITDB_DATABASE: 'notes'
+    ports:
+      - 27017:27017
+    networks:
+      - backend
+    volumes:
+      - C:\docker\volumes\sanotes-microservice-mongo-db:/var/lib/mongo/data
+
+  tracing-server:
+    image: openzipkin/zipkin:latest
+    container_name: zipkin
+    restart: always
+    environment:
+      - STORAGE_TYPE=mem
+      # Uncomment to disable scribe
+      # - SCRIBE_ENABLED=false
+      # Uncomment to enable self-tracing
+      # - SELF_TRACING_ENABLED=true
+      # Uncomment to enable debug logging
+      # - JAVA_OPTS=-Dlogging.level.zipkin=DEBUG
+    ports:
+      # Port used for the Zipkin UI and HTTP Api
+      - 9411:9411
+    networks:
+      - backend
+
+  oauth2-server:
+    container_name: oauth2-server
+    hostname: oauth2-server
+    build: ./sanotes-oauth2-server
+    restart: always
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/sanotes_oauthdb
+      - PROXY_ADDRESS_FORWARDING=true
+      - KEYCLOAK_HOSTNAME=oauth2-server
+      - KEYCLOAK_HTTP_PORT=8090
+    ports:
+      - "8090:8090"
+    networks:
+      - backend
+    depends_on:
+      - db
+
+  api-gateway:
+    container_name: api-gateway
+    build: ./sanotes-api-gateway
+    restart: on-failure
+    ports:
+      - "8080:8080"
+    networks:
+      - backend
+    depends_on:
+      - oauth2-server
+
+  note-service:
+    container_name: note-service
+    build: ./sanotes-note-service
+    restart: on-failure
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/sanotes_notedb
+      - SPRING_DATA_MONGODB_HOST=mongo:27017
+      - SPRING_DATA_MONGODB_DATABASE=notes
+    ports:
+      - "8282:8282"
+#    expose:
+#      - 5000
+    networks:
+      - backend
+    depends_on:
+      - oauth2-server
+
+
+  notebook-service:
+    container_name: notebook-service
+    build: ./sanotes-notebook-service
+    restart: on-failure
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/sanotes_notebookdb
+    ports:
+      - "8383:8383"
+#    expose:
+#      - 5000
+    networks:
+      - backend
+    depends_on:
+      - oauth2-server
+
+  tag-service:
+    container_name: tag-service
+    build: ./sanotes-tag-service
+    restart: on-failure
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/sanotes_tagdb
+    ports:
+      - "8484:8484"
+#    expose:
+#      - 5000
+    networks:
+      - backend
+    depends_on:
+      - oauth2-server
+
+  user-service:
+    container_name: user-service
+    build: ./sanotes-user-service
+    restart: on-failure
+    ports:
+      - "8585:8585"
+#    expose:
+#      - 5000
+    networks:
+      - backend
+    depends_on:
+      - oauth2-server
+
+networks:
+  backend:
+    driver: bridge
+
+volumes:
+  sanotes-microservice-db:
+    driver: local
+  sanotes-microservice-mongo-db:
+    driver: local

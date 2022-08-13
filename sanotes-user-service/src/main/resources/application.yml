@@ -1,0 +1,82 @@
+server:
+  port: 8585
+  shutdown: graceful
+  max-http-header-size: 10MB
+  max-header-count: 200
+
+spring:
+  application:
+    name: user-service
+  sleuth:
+    sampler:
+      probability: 1.0
+  security:
+    oauth2:
+      resourceserver:
+        opaquetoken:
+          introspection-uri: http://localhost:8090/auth/realms/sanotes/protocol/openid-connect/token/introspect
+          client-id: sanotes-client
+          client-secret: 0e082231-a70d-48e8-b8a5-fbfb743041b6
+          issuer-uri: http://localhost:8090/auth/realms/sanotes
+
+# Enable all Actuators and not only the two available by default /health and /info starting Spring Boot 2.0
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  security:
+    enabled: false
+
+# Logging
+logging:
+  level:
+    org:
+      springframework: INFO
+
+# Keycloak admin api
+keycloak:
+  auth-server-url: http://localhost:8090/auth
+  realm: sanotes
+  resource: user-service
+  credentials:
+    secret: 0e082231-a70d-48e8-b8a5-fbfb743041b6
+keycloakCustomProps:
+  clientId: sanotes-client
+  admin-user: adminsanotes
+  admin-password: admin123
+
+springdoc:
+  packagesToScan: sanotesuserservice
+
+cors:
+  allowedOrigins: "*"
+
+---
+spring:
+  config:
+    activate:
+      on-profile: docker
+  zipkin:
+    baseUrl: http://tracing-server:9411
+  security:
+    oauth2:
+      resourceserver:
+        opaquetoken:
+          introspection-uri: http://oauth2-server:8090/auth/realms/sanotes/protocol/openid-connect/token/introspect
+          client-id: sanotes-client
+          client-secret: fMMzzHDey3z9mVo6ZCxZVvleyeqdQwqS
+          issuer-uri: http://oauth2-server:8090/auth/realms/sanotes
+
+# Keycloak admin api
+keycloak:
+  auth-server-url: http://oauth2-server:8090/auth
+  realm: sanotes
+  resource: user-service
+  credentials:
+    secret: fMMzzHDey3z9mVo6ZCxZVvleyeqdQwqS
+
+keycloakCustomProps:
+  clientId: sanotes-client
+  admin-user: adminsanotes
+  admin-password: admin123

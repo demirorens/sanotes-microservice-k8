@@ -1,0 +1,57 @@
+server:
+  port: 8090
+  shutdown: graceful
+
+spring:
+  application:
+    name: oauth2-server
+  sleuth:
+    sampler:
+      probability: 1.0
+  datasource:
+    hikari:
+      connectionTimeout: 20000
+      maximumPoolSize: 5
+    url: jdbc:postgresql://localhost:5432/sanotes_oauthdb
+    username: postgres
+    password: password
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQL10Dialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    defer-datasource-initialization: true
+
+keycloak:
+  custom:
+    server:
+      keycloak-path: /auth
+    adminUser:
+      username: admin
+      password: admin
+      create-admin-user-enabled: true
+#    migration:
+#      importProvider: singleFile
+#      importLocation: classpath:sanotes-realm.json
+
+# Enable all Actuators and not only the two available by default /health and /info starting Spring Boot 2.0
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  security:
+    enabled: false
+
+# Logging
+logging:
+  level:
+    org:
+      springframework: INFO
+---
+spring:
+  config:
+    activate:
+      on-profile: docker
+  zipkin:
+    baseUrl: http://tracing-server:9411
