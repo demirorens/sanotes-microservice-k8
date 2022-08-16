@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe convert
+    kompose.version: 1.26.1 (a9d05d509)
+  creationTimestamp: null
+  labels:
+    io.kompose.network/backend: "true"
+    io.kompose.service: tag-service
+  name: tag-service
+spec:
+  containers:
+    - env:
+        - name: SPRING_DATASOURCE_URL
+          value: jdbc:postgresql://db:5432/sanotes_tagdb
+      image: localhost:5000/sanotes-microservice-k8_tag-service
+      name: tag-service
+      ports:
+        - containerPort: 8484
+      resources: {}
+  restartPolicy: OnFailure
+status: {}
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe convert
+    kompose.version: 1.26.1 (a9d05d509)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: tag-service
+  name: tag-service
+spec:
+  type: NodePort
+  ports:
+    - name: "8484"
+      port: 8484
+      targetPort: 8484
+      nodePort: 30084
+  selector:
+    io.kompose.service: tag-service
+status:
+  loadBalancer: {}
+
