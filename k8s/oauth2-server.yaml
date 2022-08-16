@@ -1,3 +1,99 @@
+# oauth2-server postgres database yaml files
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: db-claim-oauth2-server
+  name: db-claim-oauth2-server
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi
+status: {}
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe convert
+    kompose.version: 1.26.1 (a9d05d509)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: db-oauth2-server
+  name: db-oauth2-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: db-oauth2-server
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe convert
+        kompose.version: 1.26.1 (a9d05d509)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/backend: "true"
+        io.kompose.service: db-oauth2-server
+    spec:
+      containers:
+        - env:
+            - name: POSTGRES_DB
+              value: sanotes_oauthdb
+            - name: POSTGRES_PASSWORD
+              value: password
+            - name: POSTGRES_USER
+              value: postgres
+          image: postgres:alpine
+          name: db-oauth2-server
+          ports:
+            - containerPort: 5432
+          resources: {}
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: db-claim-oauth2-server
+      restartPolicy: Always
+      volumes:
+        - name: db-claim-oauth2-server
+          persistentVolumeClaim:
+            claimName: db-claim-oauth2-server
+status: {}
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe convert
+    kompose.version: 1.26.1 (a9d05d509)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: db-oauth2-server
+  name: db-oauth2-server
+spec:
+  type: NodePort
+  ports:
+    - name: "5432"
+      port: 5432
+      targetPort: 5432
+      nodePort: 31001
+  selector:
+    io.kompose.service: db-oauth2-server
+status:
+  loadBalancer: {}
+
+
+---
+#oauth2-server deployment and service yaml files
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -33,7 +129,7 @@ spec:
             - name: PROXY_ADDRESS_FORWARDING
               value: "true"
             - name: SPRING_DATASOURCE_URL
-              value: jdbc:postgresql://db:5432/sanotes_oauthdb
+              value: jdbc:postgresql://db-oauth2-server:5432/sanotes_oauthdb
           image: localhost:5000/sanotes-microservice-k8_oauth2-server
           name: oauth2-server
           ports:

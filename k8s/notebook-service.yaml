@@ -1,3 +1,99 @@
+# notebook-service postgres database yaml files
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: db-claim-notebook-service
+  name: db-claim-notebook-service
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi
+status: {}
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe convert
+    kompose.version: 1.26.1 (a9d05d509)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: db-notebook-service
+  name: db-notebook-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: db-notebook-service
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe convert
+        kompose.version: 1.26.1 (a9d05d509)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/backend: "true"
+        io.kompose.service: db-notebook-service
+    spec:
+      containers:
+        - env:
+            - name: POSTGRES_DB
+              value: sanotes_notebookdb
+            - name: POSTGRES_PASSWORD
+              value: password
+            - name: POSTGRES_USER
+              value: postgres
+          image: postgres:alpine
+          name: db-notebook-service
+          ports:
+            - containerPort: 5432
+          resources: {}
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: db-claim-notebook-service
+      restartPolicy: Always
+      volumes:
+        - name: db-claim-notebook-service
+          persistentVolumeClaim:
+            claimName: db-claim-notebook-service
+status: {}
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe convert
+    kompose.version: 1.26.1 (a9d05d509)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: db-notebook-service
+  name: db-notebook-service
+spec:
+  type: NodePort
+  ports:
+    - name: "5432"
+      port: 5432
+      targetPort: 5432
+      nodePort: 31003
+  selector:
+    io.kompose.service: db-notebook-service
+status:
+  loadBalancer: {}
+
+
+---
+#notebook-service deployment and service yaml files
 apiVersion: v1
 kind: Pod
 metadata:
@@ -13,7 +109,7 @@ spec:
   containers:
     - env:
         - name: SPRING_DATASOURCE_URL
-          value: jdbc:postgresql://db:5432/sanotes_notebookdb
+          value: jdbc:postgresql://db-notebook-service:5432/sanotes_notebookdb
       image: localhost:5000/sanotes-microservice-k8_notebook-service
       name: notebook-service
       ports:

@@ -1,3 +1,99 @@
+# tag-service postgres database yaml files
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: db-claim-tag-service
+  name: db-claim-tag-service
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi
+status: {}
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe convert
+    kompose.version: 1.26.1 (a9d05d509)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: db-tag-service
+  name: db-tag-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: db-tag-service
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe convert
+        kompose.version: 1.26.1 (a9d05d509)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/backend: "true"
+        io.kompose.service: db-tag-service
+    spec:
+      containers:
+        - env:
+            - name: POSTGRES_DB
+              value: sanotes_tagdb
+            - name: POSTGRES_PASSWORD
+              value: password
+            - name: POSTGRES_USER
+              value: postgres
+          image: postgres:alpine
+          name: db-tag-service
+          ports:
+            - containerPort: 5432
+          resources: {}
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: db-claim-tag-service
+      restartPolicy: Always
+      volumes:
+        - name: db-claim-tag-service
+          persistentVolumeClaim:
+            claimName: db-claim-tag-service
+status: {}
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe convert
+    kompose.version: 1.26.1 (a9d05d509)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: db-tag-service
+  name: db-tag-service
+spec:
+  type: NodePort
+  ports:
+    - name: "5432"
+      port: 5432
+      targetPort: 5432
+      nodePort: 31004
+  selector:
+    io.kompose.service: db-tag-service
+status:
+  loadBalancer: {}
+
+
+---
+#tag-service deployment and service yaml files
 apiVersion: v1
 kind: Pod
 metadata:
@@ -13,7 +109,7 @@ spec:
   containers:
     - env:
         - name: SPRING_DATASOURCE_URL
-          value: jdbc:postgresql://db:5432/sanotes_tagdb
+          value: jdbc:postgresql://db-tag-service:5432/sanotes_tagdb
       image: localhost:5000/sanotes-microservice-k8_tag-service
       name: tag-service
       ports:
