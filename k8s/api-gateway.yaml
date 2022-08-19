@@ -11,7 +11,10 @@ metadata:
   name: api-gateway
 spec:
   containers:
-    - image: localhost:5000/sanotes-microservice-k8_api-gateway
+    - env:
+        - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_OPAQUETOKEN_CLIENT-SECRET
+          value: I9sXPyghLuMqRHkSGeTwKrlhlq5enE7z
+      image: localhost:5000/sanotes-microservice-k8_api-gateway
       name: api-gateway
       ports:
         - containerPort: 8080
@@ -42,4 +45,6 @@ spec:
     io.kompose.service: api-gateway
 status:
   loadBalancer: {}
+
+
 

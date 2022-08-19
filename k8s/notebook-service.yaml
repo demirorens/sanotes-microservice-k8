@@ -110,6 +110,8 @@ spec:
     - env:
         - name: SPRING_DATASOURCE_URL
           value: jdbc:postgresql://db-notebook-service:5432/sanotes_notebookdb
+        - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_OPAQUETOKEN_CLIENT-SECRET
+          value: I9sXPyghLuMqRHkSGeTwKrlhlq5enE7z
       image: localhost:5000/sanotes-microservice-k8_notebook-service
       name: notebook-service
       ports:
