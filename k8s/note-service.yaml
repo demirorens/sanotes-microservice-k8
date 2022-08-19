@@ -184,34 +184,50 @@ status:
 
 ---
 #note-service deployment and service yaml files
-apiVersion: v1
-kind: Pod
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   annotations:
     kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe convert
     kompose.version: 1.26.1 (a9d05d509)
   creationTimestamp: null
   labels:
-    io.kompose.network/backend: "true"
     io.kompose.service: note-service
   name: note-service
 spec:
-  containers:
-    - env:
-        - name: SPRING_DATASOURCE_URL
-          value: jdbc:postgresql://db-note-service:5432/sanotes_notedb
-        - name: SPRING_DATA_MONGODB_DATABASE
-          value: notes
-        - name: SPRING_DATA_MONGODB_HOST
-          value: mongo:27017
-        - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_OPAQUETOKEN_CLIENT-SECRET
-          value: I9sXPyghLuMqRHkSGeTwKrlhlq5enE7z
-      image: localhost:5000/sanotes-microservice-k8_note-service
+  replicas: 2
+  selector:
+    matchLabels:
+      io.kompose.service: note-service
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe convert
+        kompose.version: 1.26.1 (a9d05d509)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/backend: "true"
+        io.kompose.service: note-service
       name: note-service
-      ports:
-        - containerPort: 8282
-      resources: {}
-  restartPolicy: OnFailure
+    spec:
+      containers:
+        - env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:postgresql://db-note-service:5432/sanotes_notedb
+            - name: SPRING_DATA_MONGODB_DATABASE
+              value: notes
+            - name: SPRING_DATA_MONGODB_HOST
+              value: mongo:27017
+            - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_OPAQUETOKEN_CLIENT-SECRET
+              value: I9sXPyghLuMqRHkSGeTwKrlhlq5enE7z
+          image: localhost:5000/sanotes-microservice-k8_note-service
+          name: note-service
+          ports:
+            - containerPort: 8282
+          resources: {}
+      hostname: note-service
+      restartPolicy: Always
 status: {}
 
 ---
@@ -227,7 +243,7 @@ metadata:
     io.kompose.service: note-service
   name: note-service
 spec:
-  type: NodePort
+  type: LoadBalancer #NodePort
   ports:
     - name: "8282"
       port: 8282

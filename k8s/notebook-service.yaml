@@ -94,30 +94,46 @@ status:
 
 ---
 #notebook-service deployment and service yaml files
-apiVersion: v1
-kind: Pod
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   annotations:
     kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe convert
     kompose.version: 1.26.1 (a9d05d509)
   creationTimestamp: null
   labels:
-    io.kompose.network/backend: "true"
     io.kompose.service: notebook-service
   name: notebook-service
 spec:
-  containers:
-    - env:
-        - name: SPRING_DATASOURCE_URL
-          value: jdbc:postgresql://db-notebook-service:5432/sanotes_notebookdb
-        - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_OPAQUETOKEN_CLIENT-SECRET
-          value: I9sXPyghLuMqRHkSGeTwKrlhlq5enE7z
-      image: localhost:5000/sanotes-microservice-k8_notebook-service
+  replicas: 2
+  selector:
+    matchLabels:
+      io.kompose.service: notebook-service
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe convert
+        kompose.version: 1.26.1 (a9d05d509)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/backend: "true"
+        io.kompose.service: notebook-service
       name: notebook-service
-      ports:
-        - containerPort: 8383
-      resources: {}
-  restartPolicy: OnFailure
+    spec:
+      containers:
+        - env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:postgresql://db-notebook-service:5432/sanotes_notebookdb
+            - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_OPAQUETOKEN_CLIENT-SECRET
+              value: I9sXPyghLuMqRHkSGeTwKrlhlq5enE7z
+          image: localhost:5000/sanotes-microservice-k8_notebook-service
+          name: notebook-service
+          ports:
+            - containerPort: 8383
+          resources: {}
+      hostname: notebook-service
+      restartPolicy: Always
 status: {}
 
 ---
@@ -133,7 +149,7 @@ metadata:
     io.kompose.service: notebook-service
   name: notebook-service
 spec:
-  type: NodePort
+  type: LoadBalancer #NodePort
   ports:
     - name: "8383"
       port: 8383
