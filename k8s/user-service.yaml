@@ -28,9 +28,25 @@ spec:
       containers:
         - env:
             - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_OPAQUETOKEN_CLIENT-SECRET
-              value: I9sXPyghLuMqRHkSGeTwKrlhlq5enE7z
+              valueFrom:
+                secretKeyRef:
+                  name: sanotes-microservice-k8s-secrets
+                  key: keycloak_client_secret
             - name: KEYCLOAK_CREDENTIALS_SECRET
-              value: I9sXPyghLuMqRHkSGeTwKrlhlq5enE7z
+              valueFrom:
+                secretKeyRef:
+                  name: sanotes-microservice-k8s-secrets
+                  key: keycloak_client_secret
+            - name: KEYCLOAKCUSTOMPROPS_ADMIN-USER
+              valueFrom:
+                secretKeyRef:
+                  name: sanotes-microservice-k8s-secrets
+                  key: keycloakcustomprops_admin-user
+            - name: KEYCLOAKCUSTOMPROPS_ADMIN-PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: sanotes-microservice-k8s-secrets
+                  key: keycloakcustomprops_admin-password
           image: localhost:5000/sanotes-microservice-k8_user-service
           name: user-service
           ports:

@@ -55,6 +55,8 @@ services:
     restart: always
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/sanotes_oauthdb
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=password
       - PROXY_ADDRESS_FORWARDING=true
       - KEYCLOAK_HOSTNAME=oauth2-server
       - KEYCLOAK_HTTP_PORT=8090
@@ -69,6 +71,8 @@ services:
     container_name: api-gateway
     build: ./sanotes-api-gateway
     restart: on-failure
+    environment:
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_OPAQUETOKEN_CLIENT-SECRET=fMMzzHDey3z9mVo6ZCxZVvleyeqdQwqS
     ports:
       - "8080:8080"
     networks:
@@ -81,13 +85,14 @@ services:
     build: ./sanotes-note-service
     restart: on-failure
     environment:
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_OPAQUETOKEN_CLIENT-SECRET=fMMzzHDey3z9mVo6ZCxZVvleyeqdQwqS
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/sanotes_notedb
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=password
       - SPRING_DATA_MONGODB_HOST=mongo:27017
       - SPRING_DATA_MONGODB_DATABASE=notes
     ports:
       - "8282:8282"
-#    expose:
-#      - 5000
     networks:
       - backend
     depends_on:
@@ -99,11 +104,12 @@ services:
     build: ./sanotes-notebook-service
     restart: on-failure
     environment:
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_OPAQUETOKEN_CLIENT-SECRET=fMMzzHDey3z9mVo6ZCxZVvleyeqdQwqS
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/sanotes_notebookdb
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=password
     ports:
       - "8383:8383"
-#    expose:
-#      - 5000
     networks:
       - backend
     depends_on:
@@ -114,11 +120,12 @@ services:
     build: ./sanotes-tag-service
     restart: on-failure
     environment:
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_OPAQUETOKEN_CLIENT-SECRET=fMMzzHDey3z9mVo6ZCxZVvleyeqdQwqS
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/sanotes_tagdb
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=password
     ports:
       - "8484:8484"
-#    expose:
-#      - 5000
     networks:
       - backend
     depends_on:
@@ -128,10 +135,13 @@ services:
     container_name: user-service
     build: ./sanotes-user-service
     restart: on-failure
+    environment:
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_OPAQUETOKEN_CLIENT-SECRET=fMMzzHDey3z9mVo6ZCxZVvleyeqdQwqS
+      - KEYCLOAK_CREDENTIALS_SECRET=fMMzzHDey3z9mVo6ZCxZVvleyeqdQwqS
+      - KEYCLOAKCUSTOMPROPS_ADMIN-USER=adminsanotes
+      - KEYCLOAKCUSTOMPROPS_ADMIN-PASSWORD=admin123
     ports:
       - "8585:8585"
-#    expose:
-#      - 5000
     networks:
       - backend
     depends_on:

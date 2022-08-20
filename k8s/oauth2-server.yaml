@@ -129,7 +129,20 @@ spec:
             - name: PROXY_ADDRESS_FORWARDING
               value: "true"
             - name: SPRING_DATASOURCE_URL
-              value: jdbc:postgresql://db-oauth2-server:5432/sanotes_oauthdb
+              valueFrom:
+                configMapKeyRef:
+                  name: sanotes-microservice-k8-config
+                  key: spring_datasource_url_oauth2_server
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: sanotes-microservice-k8s-secrets
+                  key: db_username
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: sanotes-microservice-k8s-secrets
+                  key: db_password
           image: localhost:5000/sanotes-microservice-k8_oauth2-server
           name: oauth2-server
           ports:

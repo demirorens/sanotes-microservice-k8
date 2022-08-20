@@ -66,5 +66,5 @@ spring:
         opaquetoken:
           introspection-uri: http://oauth2-server:8090/auth/realms/sanotes/protocol/openid-connect/token/introspect
           client-id: sanotes-client
-          client-secret: fMMzzHDey3z9mVo6ZCxZVvleyeqdQwqS
+#          client-secret: fMMzzHDey3z9mVo6ZCxZVvleyeqdQwqS
           issuer-uri: http://oauth2-server:8090/auth/realms/sanotes

@@ -124,9 +124,25 @@ spec:
       containers:
         - env:
             - name: SPRING_DATASOURCE_URL
-              value: jdbc:postgresql://db-notebook-service:5432/sanotes_notebookdb
+              valueFrom:
+                configMapKeyRef:
+                  name: sanotes-microservice-k8-config
+                  key: spring_datasource_url_notebook_service
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: sanotes-microservice-k8s-secrets
+                  key: db_username
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: sanotes-microservice-k8s-secrets
+                  key: db_password
             - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_OPAQUETOKEN_CLIENT-SECRET
-              value: I9sXPyghLuMqRHkSGeTwKrlhlq5enE7z
+              valueFrom:
+                secretKeyRef:
+                  name: sanotes-microservice-k8s-secrets
+                  key: keycloak_client_secret
           image: localhost:5000/sanotes-microservice-k8_notebook-service
           name: notebook-service
           ports:

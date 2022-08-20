@@ -214,13 +214,35 @@ spec:
       containers:
         - env:
             - name: SPRING_DATASOURCE_URL
-              value: jdbc:postgresql://db-note-service:5432/sanotes_notedb
+              valueFrom:
+                configMapKeyRef:
+                  name: sanotes-microservice-k8-config
+                  key: spring_datasource_url_note_service
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: sanotes-microservice-k8s-secrets
+                  key: db_username
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: sanotes-microservice-k8s-secrets
+                  key: db_password
             - name: SPRING_DATA_MONGODB_DATABASE
-              value: notes
+              valueFrom:
+                configMapKeyRef:
+                  name: sanotes-microservice-k8-config
+                  key: spring_data_mongodb_database
             - name: SPRING_DATA_MONGODB_HOST
-              value: mongo:27017
+              valueFrom:
+                configMapKeyRef:
+                  name: sanotes-microservice-k8-config
+                  key: spring_data_mongodb_host
             - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_OPAQUETOKEN_CLIENT-SECRET
-              value: I9sXPyghLuMqRHkSGeTwKrlhlq5enE7z
+              valueFrom:
+                secretKeyRef:
+                  name: sanotes-microservice-k8s-secrets
+                  key: keycloak_client_secret
           image: localhost:5000/sanotes-microservice-k8_note-service
           name: note-service
           ports:

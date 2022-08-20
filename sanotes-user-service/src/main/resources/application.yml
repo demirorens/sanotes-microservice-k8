@@ -74,9 +74,9 @@ keycloak:
   realm: sanotes
   resource: user-service
   credentials:
-    secret: fMMzzHDey3z9mVo6ZCxZVvleyeqdQwqS
+#    secret: fMMzzHDey3z9mVo6ZCxZVvleyeqdQwqS
 
 keycloakCustomProps:
   clientId: sanotes-client
-  admin-user: adminsanotes
-  admin-password: admin123
+#  admin-user: adminsanotes
+#  admin-password: admin123

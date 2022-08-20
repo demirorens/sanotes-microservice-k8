@@ -27,7 +27,10 @@ spec:
       containers:
         - env:
             - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_OPAQUETOKEN_CLIENT-SECRET
-              value: I9sXPyghLuMqRHkSGeTwKrlhlq5enE7z
+              valueFrom:
+                secretKeyRef:
+                  name: sanotes-microservice-k8s-secrets
+                  key: keycloak_client_secret
           image: localhost:5000/sanotes-microservice-k8_api-gateway
           name: api-gateway
           ports:
