@@ -2,6 +2,7 @@ version: '3'
 
 services:
   db:
+    platform: linux/amd64
     image: postgres:alpine
     container_name: sanotes-microservice-db
     restart: always
@@ -14,10 +15,11 @@ services:
     networks:
       - backend
     volumes:
-      - C:\docker\volumes\sanotes-microservice-db:/var/lib/postgresql/data
+      - sanotes-microservice-db:/var/lib/postgresql/data
       - ./config-db:/docker-entrypoint-initdb.d
 
   mongo:
+    platform: linux/amd64
     image: mongo:latest
     container_name: sanotes-mongo-db
     restart: always
@@ -28,9 +30,10 @@ services:
     networks:
       - backend
     volumes:
-      - C:\docker\volumes\sanotes-microservice-mongo-db:/var/lib/mongo/data
+      - sanotes-microservice-mongo-db:/var/lib/mongo/data
 
   tracing-server:
+    platform: linux/amd64
     image: openzipkin/zipkin:latest
     container_name: zipkin
     restart: always

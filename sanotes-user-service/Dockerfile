@@ -1,5 +1,5 @@
 # Building image
-FROM openjdk:17-alpine
+FROM --platform=linux/amd64 openjdk:17-alpine
 VOLUME /tmp
 RUN addgroup -S sanotes && adduser -S sanotes -G sanotes
 USER sanotes:sanotes
