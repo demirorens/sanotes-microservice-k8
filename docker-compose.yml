@@ -18,6 +18,7 @@ services:
       - sanotes-microservice-db:/var/lib/postgresql/data
       - ./config-db:/docker-entrypoint-initdb.d
 
+
   mongo:
     platform: linux/amd64
     image: mongo:latest
